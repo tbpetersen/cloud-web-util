@@ -1,0 +1,18 @@
+Dear [Insert Customer Name Here],
+
+Your SDSC Cloud account invoice was rejected this month. This is your [Warning] warning notification.
+
+These are the services that are being rejected:
+[Systems]
+
+Please verify in the SDSC Cloud dashboard that your index is up to date. If your index is already up to date, please reply to this email and let SDSC ITSS know that there may be a different issue.
+
+Please refer to the policy below for unpaid account penalties.
+
+SDSC Unpaid Account Policy
+	- Customers will be notified when their bill bounces for the first time.
+	- If a second consecutive bill bounces (~30 days after first notification), customer will be notified again. Some Cloud Compute functions may be disabled.
+	- If a third consecutive bill bounces (~60 days after first notification), customer will be notified again. Cloud Storage access will be removed. More Cloud Compute functions may be disabled.
+	- If a fourth consecutive bill bounces (~90 days after first notification), the customer will be notified, the account will be removed and data will be wiped.
+
+SDSC ITSS
