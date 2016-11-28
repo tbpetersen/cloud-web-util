@@ -7,12 +7,13 @@ from email.mime.text import MIMEText
 from keystoneauth1.exceptions.http import Conflict as Name_Conflict
 import os, errno
 import requests
+import paramiko
 
 import db_communicator
 import credentials
 from email_util import sendMail
 from keystoneclient.v3 import client
-import paramiko
+from openstack_utility import keyStoneUtility
 
 
 ticketsGeneratedThisMonth = False
@@ -348,7 +349,7 @@ def main():
 		return
 
 	if gPdata == "ACCOUNT":
-		createAccount(sys.argv[2])
+		unpackProjectData(sys.argv[2])
 		return
 
 	if gPdata != "POST":
@@ -468,7 +469,9 @@ def getData():
 def saveTrialProject(project_name, warning, expiration):
 	db_communicator.query('insert into trial_projects (name, created, notified, warning_length, delete_length) values (%s, CURRENT_TIMESTAMP, %s, %s, %s);', [project_name, False, warning, expiration], False)
 
-def createAccount(data):
+ATTACH_NETWORK = True
+
+def unpackProjectData(data):
 	data = json.loads(data)
 	project_name = data['projectName']
 	contact_name = data['contactName']
@@ -482,68 +485,24 @@ def createAccount(data):
 		index = data['index']
 		warningTime = None
 		expirationTime = None
-	createProject(project_name, contact_name, contact_email, users, index, warningTime, expirationTime)
-	sendMail("cloud-no-reply@sdsc.edu", ["c1mckay@sdsc.edu", "ranakashima@sdsc.edu"], 
-		"New Project Created ["+project_name+"]", project_name + " created for:\n" + "\n".join(users))
 
-def createProject(project_name, contact_name, contact_email, users, index, warningTime, expirationTime):
+	pBuilder = keyStoneUtility.KeyStoneUtility(username = credentials.open_stack_username, password=credentials.open_stack_pw, auth_url = credentials.open_stack_url, 
+		auth_url_dep = credentials.open_stack_url_dep, tenant_name=credentials.open_stack_username)
+
 	try:
-		project = keyStone.projects.create(name=project_name,
-			description="",
-			enabled=True,
-			domain=None,
-			billing_index=index.upper(),
-			contact_name=contact_name.title(),
-			contact_email=contact_email.lower())
+		pBuilder.createProject(project_name = project_name, contact_name = contact_name, contact_email = contact_email, billing_field = index, attachNetwork = ATTACH_NETWORK)
 	except Name_Conflict:
 		raise ProjectNameTaken()
 
-	attachNetwork(project)
-
-	if(index == TRIAL_INDEX):
+	if index == TRIAL_INDEX:
 		saveTrialProject(project_name, warningTime, expirationTime)
 
-	user_dict = {}
+	usersAndPasswords = [{'username': u, 'password': '' if pBuilder.userExists(u) else getAndSendPassword(u)} for u in users]
 
-	for user in keyStone.users.list():
-		user_dict[user.name] = user
+	pBuilder.attachUsers(project_name, usersAndPasswords)
 
-	project_id = project.id
-	
-	roles = keyStone.roles.list(project=project_id)
-	default_role = next(role for role in roles if role.name == "_member_")
-
-	
-	for user in users:
-		user = user.lower()
-		user_exists = user in user_dict
-
-		if user_exists:
-			user = user_dict[user] #transforming into
-		else:
-			user = keyStone.users.create(name=user.lower(),
-				domain=None,
-				default_project=project_id,
-				password=getAndSendPassword(user),
-				email=user,
-				description="",
-				enabled=True)
-		keyStone.roles.grant(default_role, user=user, project=project)
-
-def attachNetwork(project_info):
-	# http://docs.openstack.org/user-guide/sdk-neutron-apis.html
-	from neutronclient.v2_0 import client as nClient
-
-	neutron = nClient.Client(username = credentials.open_stack_username, password=credentials.open_stack_pw, auth_url = credentials.open_stack_url_dep, tenant_name=credentials.open_stack_username)
-	network_name = "%s_network" % project_info.name
-	network_info = neutron.create_network(body = {'network': {'name': network_name, 'admin_state_up': True, 'tenant_id': project_info.id}})
-	new_net_id = network_info['network']['id']
-	tenant_net_id = neutron.list_subnetpools(name='tenant-nets', fields='id')['subnetpools'][0]['id']
-	subnet_name = "%s_subnet" % project_info.name
-	subnet_info = neutron.create_subnet({'subnet': {'name': subnet_name, 'tenant_id': project_info.id, 'subnetpool_id': tenant_net_id, 'network_id': new_net_id, 'ip_version': '4'}})
-	new_subnet_id = subnet_info['subnet']['id']
-	shared_router_id = neutron.list_routers(name='shared-router')['routers'][0]['id']
-	neutron.add_interface_router(shared_router_id, {'subnet_id': new_subnet_id})
+	sendMail("cloud-no-reply@sdsc.edu", ["c1mckay@sdsc.edu", "ranakashima@sdsc.edu"], 
+		"New Project Created ["+project_name+"]", project_name + " created for:\n" + "\n".join(users))
 
 if __name__ == "__main__":
 	main()
