@@ -179,10 +179,8 @@ class BadProject:
 		myprint('\n')
 
 	def getEmailDates(self):
-		emailData = []
-		if self.projectName.lower() not in emailData:
-			return []
-		return emailData[self.projectName.lower()]
+		emailData = getDatesSent(self.projectName.lower())
+		return [(t-datetime.date(1970,1,1)).total_seconds() for t in emailData]
 
 def queryHolonet(qString):
 	ssh = paramiko.SSHClient()
@@ -192,7 +190,9 @@ def queryHolonet(qString):
 	script = "query.php \"" + qString + "\""
 
 	stdin, stdout, stderr = ssh.exec_command('php ' + script)
-	if len("".join(stderr.readlines())) != 0:
+	err = "".join(stderr.readlines())
+	if len(err) != 0:
+		print err
 		ssh.close()
 		raise BillingQueryError()
 	ssh.close()
@@ -382,7 +382,7 @@ def saveEmailTimeToDb(project_name):
 	db_communicator.query('insert into email_records (project_name, date_sent) values (%s, CURRENT_TIMESTAMP);', [project_name], False)
 
 def getDatesSent(project_name):
-	results = db_communicator.query('select date_sent from email_records where project_name = %s', project_name.lower(), True)
+	results = db_communicator.query('select date_sent from email_records where project_name = %s', [project_name.lower()], True)
 	return [r[0] for r in results]
 
 
@@ -399,8 +399,8 @@ def postMail(project_name):
 	sent_emails = getDatesSent(project_name)
 	if len(sent_emails) != 0:
 		earliestEmail = max(sent_emails)
-		if not monthAfter(earliestEmail)
-		raise EmailSpamError
+		if not monthAfter(earliestEmail):
+			raise EmailSpamError
 
 	badProjects = getOutstandingTickets()
 	if project_name not in badProjects:
