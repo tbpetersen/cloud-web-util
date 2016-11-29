@@ -101,7 +101,17 @@ def editTicket(ticketNumber, line_items):
 		"[Cloud Compute] Volume Snapshot Charges": ("SRF__bCloud", "Cloud__bCompute", 0.08)
 	}
 
+	productInfoFormat = {
+		"[Cloud Storage] Usage Charges": "Cloud Storage: {0} TB",
+		"[Cloud Compute] Usage Charges": "Cloud Compute Usage Charges: {0} Units",
+		"[Cloud Compute] Image Charges": "Cloud Compute Image Charges: {0} Units",
+		"[Cloud Compute] Volume Charges": "Cloud Compute Volume Charges: {0} Units",
+		"[Cloud Compute] Volume Snapshot Charges": "Cloud Compute Volume Snapshot Charges: {0} Units"
+	}
+
 	projfields = {}
+
+	product_text = ["", "", "", "", ""]
 
 	charges = range(1,6)
 	for line_item in line_items:
@@ -114,6 +124,8 @@ def editTicket(ticketNumber, line_items):
 			return
 		else:
 			converter.pop(title)
+
+		product_text[n - 1] = productInfoFormat[title].format(str(line_item[QUANTITY]))
 
 		projfields['Item__b{0}__bSeller'.format(n)] = line_item[SELLER]
 		projfields['Item__b{0}__bCategory'.format(n)] = line_item[CATEGORY]
@@ -135,6 +147,7 @@ def editTicket(ticketNumber, line_items):
 		projfields['Item__b{0}__bRate'.format(n)] = rate
 		projfields['Item__b{0}__bQuantity'.format(n)] = 0
 
+	projfields['Other__bProduct__bInfo'] = '\n'.join(product_text)
 
 	args['projfields'] = projfields
 
