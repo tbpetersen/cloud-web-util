@@ -358,8 +358,7 @@ def main():
 
 	postMail(sys.argv[2])
 
-def monthAfter(seconds):
-	date = datetime.datetime.fromtimestamp(seconds).date()
+def monthAfter(date):
 	nextAllowableDate = date + datetime.timedelta(days = 30)
 	return nextAllowableDate < datetime.datetime.now().date()
 
@@ -379,6 +378,13 @@ class NoProjectError(Exception):
 	def __init__(self,*args,**kwargs):
 		Exception.__init__(self,*args,**kwargs)
 
+def saveEmailTimeToDb(project_name):
+	db_communicator.query('insert into email_records (project_name, date_sent) values (%s, CURRENT_TIMESTAMP);', [project_name], False)
+
+def getDatesSent(project_name):
+	results = db_communicator.query('select date_sent from email_records where project_name = %s', project_name.lower(), True)
+	return [r[0] for r in results]
+
 
 def postMail(project_name):
 
@@ -389,16 +395,12 @@ def postMail(project_name):
 	badProjects = getOutstandingTickets() 
 
 	# load previous emails
-	with open('past_emails.json') as data_file:    
-	    emailData = json.load(data_file)
 
-	if project_name in emailData and len(emailData[project_name]) != 0:
-		earliestEmail = max(emailData[project_name])
-		if not monthAfter(earliestEmail):
-			raise EmailSpamError()
-
-	if project_name not in emailData:
-		emailData[project_name] = []
+	sent_emails = getDatesSent(project_name)
+	if len(sent_emails) != 0:
+		earliestEmail = max(sent_emails)
+		if not monthAfter(earliestEmail)
+		raise EmailSpamError
 
 	badProjects = getOutstandingTickets()
 	if project_name not in badProjects:
@@ -406,11 +408,7 @@ def postMail(project_name):
 
 	badProjects[project_name].report()
 
-	emailData[project_name].append(time.time())
-
-	f = open('past_emails.json', 'w')
-	f.write(json.dumps(emailData, separators=(',',':')))
-	f.close()
+	saveEmailTimeToDb(project_name)
 
 
 
