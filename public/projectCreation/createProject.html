@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/myCss.css" rel="stylesheet">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/main.js"></script>
+  </head>
+
+  <body>
+    <!-- Begin panel for form -->
+    <div class="panel panel-default myPanel">
+      <div class="panel-body"><center><b> Create Project </b></center> <br/>
+
+        <!--  Begin form -->
+        <form onsubmit='realSubmit(); return false;'>
+          <div class="form-group row">
+          <label for="example-text-input" class="col-xs-2 col-form-label">Project Name</label>
+          <div class="col-xs-10">
+            <input onfocus="removeError('projectNameError')" class="form-control" type="text" id="projectName" name="projectName">
+            <div id="projectNameError" class="alert alert-danger hidden hidden">This field requires a value</div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="example-text-input" class="col-xs-2 col-form-label">Project Type</label>
+          <div class="col-xs-10">
+            <label class="radio-inline"><input id="standardButton" onchange="showIndex();"type="radio" name="optradio" checked>Standard</label>
+            <label class="radio-inline"><input id="trialButton" onchange="hideIndex();" type="radio" name="optradio">Trial</label>
+           </div>
+         </div>
+
+        <div class="form-group row">
+          <label for="example-text-input" class="col-xs-2 col-form-label">Contact Name</label>
+          <div class="col-xs-10">
+            <input onfocus="removeError('contactNameError')" class="form-control" type="text" id="contactName" name="contactName">
+            <div id="contactNameError" class="alert alert-danger hidden">This field requires a value</div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="example-text-input" class="col-xs-2 col-form-label">Contact Email</label>
+          <div class="col-xs-10">
+            <input onfocus="removeError('contactEmailError')" class="form-control" type="text" id="contactEmail" name="contactEmail">
+            <div id="contactEmailError" class="alert alert-danger hidden">Please enter a valid email</div>
+          </div>
+        </div>       
+
+        <div class="form-group row">
+          <label for="index" id="trialLengthLabel" class="col-xs-2 col-form-label hidden">Trial Length</label>
+          <div class="col-xs-10">
+            <input onfocus="removeError('trialLengthError')" class="form-control hidden" value=90 type="number" id="trialLength" name="trialLength">
+            <div id="trialLengthError" class="alert alert-danger hidden">This field requires a number</div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="index" id="warningLengthLabel" class="col-xs-2 col-form-label hidden">Warning Length</label>
+          <div class="col-xs-10">
+            <input onfocus="removeError('warningLengthError')" class="form-control hidden" value=60 type="number" id="warningLength" name="warningLength">
+            <div id="warningLengthError" class="alert alert-danger hidden">This field requires a number</div>
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="index" id="indexLabel" class="col-xs-2 col-form-label">Index</label>
+          <div class="col-xs-10">
+            <input onfocus="removeError('indexError')" class="form-control" type="text" id="index" name="index">
+            <div id="indexError" class="alert alert-danger hidden">This field requires a value</div>
+          </div>
+        </div>
+
+        <ul class="list-group" id="userList">
+           <li class="list-group-item" id="username1">
+             <div>
+               <label class="col-xs-2 col-form-label custom">Username</label>
+               <div>
+                 <div class="input-group col-lg-10">
+                   <input onfocus="removeError('usernameError'); removeError('duplicateUserError');" id="user" name="user" type="text" class="form-control" placeholder="user@example.com">
+                   <span class="input-group-btn">
+                     <button onclick="addInput()" class="btn btn-success" type="button"><b>+</b></button>
+                   </span>
+                 </div>
+               </div>
+             </div>
+          </li>
+         <div id="usernameError" class="alert alert-danger hidden">Please enter a valid email</div>
+         <div id="duplicateUserError" class="alert alert-danger hidden">Usernames must be unique</div>
+       </ul> 
+
+
+       <!--<input type="password" id="pass">Pass <button type="button" onclick="getLoginToken()">Click me</button> <br> i-->
+
+         <!-- End form -->
+        <br><button class="btn btn-success" type="submit">Create</button>
+        <div id="successfulCreate" class="alert alert-success hidden">Project successfully created</div>
+        <div id="failedCreate" class="alert alert-danger hidden">Something went wrong when creating the project</div>
+        </form>
+
+      <!--End panel -->
+      </div>
+    </div>
+  </body>
+</html>

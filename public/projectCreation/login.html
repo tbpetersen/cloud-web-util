@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/myCss.css" rel="stylesheet">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/login.js"></script>
+  </head>
+
+  <body>
+    <!-- Begin panel for form -->
+    <div class="panel panel-default myPanel">
+      <div class="panel-body"><center><b> Create Project </b></center> <br/>
+
+        <!-- Begin form -->
+        <form onsubmit="realSubmit(); return false;">
+          <div class="form-group row">
+          <label for="example-text-input" class="col-xs-2 col-form-label">Username</label>
+          <div class="col-xs-10">
+            <input onfocus="removeError('authError'); removeError('formError');" class="form-control" type="text" id="username" name="username">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label for="example-text-input" class="col-xs-2 col-form-label">Password</label>
+          <div class="col-xs-10">
+            <input onfocus="removeError('authError'); removeError('formError');" class="form-control" type="password" id="pass" name="pass">
+            <div id="formError" class="alert alert-danger hidden">Please enter a username and password</div>
+            <div id="authError" class="alert alert-danger hidden">Username or password is incorrect</div>
+            <div id="backendError" class="alert alert-danger hidden">Error on the server</div>
+          </div>
+        </div>
+
+         <!-- End form -->
+        <br><button class="btn btn-success" type="submit">Login</button>
+        </form>
+
+      <!--End panel -->
+      </div>
+    </div>
+  </body>
+</html>
