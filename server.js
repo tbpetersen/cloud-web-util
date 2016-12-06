@@ -12,7 +12,7 @@ var crypto = require('crypto');
 var spawn = require("child_process").spawn;
 
 var port = 443;
-const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu'];
+const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu', 'dferbert@sdsc.edu'];
 const python_cmd = 'python';
 
 var options = {
@@ -20,10 +20,12 @@ var options = {
   cert: fs.readFileSync('cloud-web-util.crt')
 };
 
+
 var server = http.createServer(options, function(request, response){
 	if(request.method === 'GET'){
 		if(request.url === '/requestData'){
-			if(badToken(request, response)){
+			if(badToken(request)){
+				sendUnauthorized(response);
 				return;
 			}
 			getData(response);
@@ -31,27 +33,51 @@ var server = http.createServer(options, function(request, response){
 		}else if(request.url === '/login'){
 			var auth = request.headers.authorization;			
 			
-			authenticate(auth, response);
+			authenticate(auth, response)
+			.then((passed) => {
+				if(passed){
+					response.statusCode = 200;
+					response.end(getKey());
+				}else{
+					sendUnauthorized(response);
+				}
+			});
+		
 			return;
 		}else{
 			serveFile(request, response);
 			return;
 		}
 	}else if(request.method === 'POST'){
-		if(badToken(request, response))
-			return;
-		if(request.url === '/account'){
-			extractHTTPData(request, function(data){
-				createAccount(response, data);
-			});
-		}else{			
-			sendEmail(request.url.substring(1), response);	
-		}
-		return;
-	}
 
-	response.statusCode = 404;
-	response.end();
+		Promise.all([Promise.resolve(badToken(request, response)), authenticate(request.headers.authorization)])
+			.then((results) => {
+				var hasGoodToken = !results[0];
+				var goodCredentials = results[1];
+				if(goodCredentials || hasGoodToken){
+					if(request.url === '/account'){
+						extractHTTPData(request)
+						.then((data) => {
+							createAccount(response, data);
+						});
+					}else if(request.url === '/new-commvault-ticket'){
+						newCommvaultTicket(request, response);
+					}else{			
+						sendEmail(request.url.substring(1), response);	
+					}
+				
+				}else{
+					sendUnauthorized(response);
+				}
+			}).catch((err) => {
+				response.statusCode = 500;
+				response.end(err.toString());
+			});
+		
+		return;
+	}else{
+		sendUnauthorized(response);
+	}
 });
 
 var pf = require('portfinder');
@@ -71,13 +97,15 @@ pf.getPort(function(err, pt){
 server.listen(port);
 
 
-function extractHTTPData(request, done){
-	var body = [];
-	request.on('data', function(chunk) {
-	  body.push(chunk);
-	}).on('end', function() {
-	  body = Buffer.concat(body).toString();
-	  done(body);
+function extractHTTPData(request){
+	return new Promise((resolve, reject) => {
+		var body = [];
+		request.on('data', function(chunk) {
+		  body.push(chunk);
+		}).on('end', function() {
+		  body = Buffer.concat(body).toString();
+		  resolve(body);
+		});
 	});
 }
 
@@ -137,6 +165,13 @@ function serveFile(request, response){
     });
 }
 
+function newCommvaultTicket(request, response){
+	extractHTTPData(request)
+	.then((data) => {
+		runPythonScript(response, 'createCommvaultTicket.py', [data]);
+	});
+}
+
 function getData(response){
 	runPythonScript(response, 'extractor.py', ['GET']);
 }
@@ -163,7 +198,6 @@ function runPythonScript(response, fileName, args){
 	});
 
 	py.stdout.on('data', function(data){
-		console.log(data.toString());
 	  	dataString += data.toString();
 	});
 	py.stderr.on('data', function(data){
@@ -174,11 +208,12 @@ function runPythonScript(response, fileName, args){
 		if(sent)
 			return;
 		if(erString.length > 0){
+			console.log(erString);
 			if(erString.indexOf('EmailSpamError') > -1){
 				response.statusCode = 405;
 				response.end("EmailSpam");
 			}
-			if(erString.indexOf('BillingQueryError') > -1){
+			else if(erString.indexOf('BillingQueryError') > -1){
 				response.statusCode = 405;
 				response.end("BillingQueryError");
 			}
@@ -201,44 +236,50 @@ function runPythonScript(response, fileName, args){
 	py.stdin.end();
 }
 
-function authenticate(auth, response){
-	try{
-		auth = atob(auth).split(':');
-	}catch(err){
-		sendInvalid();
-		return;
-	}
-	var username = auth[0], password = auth[1];
-	if(ALLOWED_USERNAMES.indexOf(username.toLowerCase()) === -1){
-		sendInvalid();
-		return;
-	}
+function authenticate(auth){
 
-	var py = spawn(python_cmd, ['authenticator.py', username, password]);
-	var sent = false;
 
-	function sendInvalid(){
-		if(sent)
+	return new Promise((resolve, reject) => {
+
+		var sent = false;
+		var sendInvalid = function(){
+			if(sent)
+				return;
+			sent = true;
+			resolve(false);
+		}
+		
+		try{
+			auth = atob(auth).split(':');
+		}catch(err){
+			sendInvalid();
 			return;
-		sent = true;
-		response.statusCode = 401;
-		response.end();
-	}
-
-	py.on('error', function(err){
-		sendInvalid();
-	});
-	py.stderr.on('data', function(data){
-		sendInvalid();
-	});
-
-	py.stdout.on('end', function(){
-		if(sent)
+		}
+		var username = auth[0], password = auth[1];
+		if(ALLOWED_USERNAMES.indexOf(username.toLowerCase()) === -1){
+			sendInvalid();
 			return;
-		response.statusCode = 200;
-		response.end(getKey());
+		}
+
+		
+		var py = spawn(python_cmd, ['authenticator.py', username, password]);
+
+		py.on('error', function(err){
+			sendInvalid();
+		});
+		py.stderr.on('data', function(data){
+			sendInvalid();
+		});
+
+		py.stdout.on('end', function(){
+			if(sent)
+				return;
+			else
+				resolve(true);
+		});
+		py.stdin.end();
 	});
-	py.stdin.end();
+	
 }
 
 var currentKey = null;
@@ -251,11 +292,18 @@ function getKey(){
     return currentKey;
 }
 
-function badToken(request, response){
+function badToken(request){
 	if(!currentKey || request.headers.authorization !== currentKey){
-		response.statusCode = 401;
-		response.end();
 		return true;
 	}
 	return false;
+}
+
+function goodToken(request){
+	return !badToken(request);
+}
+
+function sendUnauthorized(response){
+	response.statusCode = 401;
+	response.end();
 }
