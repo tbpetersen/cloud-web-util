@@ -7,7 +7,7 @@ my $soap = new SOAP::Lite;
 use lib qw(..);
 use JSON qw( );
 
-my $filename = 'credentials.json';
+my $filename = '/home/c1mckay/pyfootprints/credentials.json';
 
 my $json_text = do {
    open(my $json_fh, "<:encoding(UTF-8)", $filename)
@@ -31,8 +31,8 @@ $soap->proxy( 'https://footprints.sdsc.edu/MRcgi/MRWebServices.pl' );
 
 my $projfields = decode_json $ARGV[1];
 
-#my $soapenv = $soap->MRWebServices__editIssue(
-my $soapenv = $soap->MRWebServices__createIssue(
+my $soapenv = $soap->MRWebServices__editIssue(
+#my $soapenv = $soap->MRWebServices__createIssue(
     $credentials->{footprints_username},
     $credentials->{footprints_password},
     '',

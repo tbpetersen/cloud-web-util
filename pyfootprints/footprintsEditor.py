@@ -12,8 +12,10 @@ NOT_APPROVED_BY_MANAGER = 'off'
 MEDIUM = 3
 HIGH = 2
 
-CREATOR_FILE = 'create.pl'
-EDITOR_FILE = 'edit.pl'
+pwd_loc = '/home/c1mckay'
+
+CREATOR_FILE = pwd_loc + '/pyfootprints/create.pl'
+EDITOR_FILE = pwd_loc + '/pyfootprints/edit.pl'
 
 ACCOUNT_NAME = 2
 FIRST_NAME = 3
@@ -28,7 +30,7 @@ QUANTITY = 11
 def queryHolonet(qString):
 	ssh = paramiko.SSHClient()
 	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-	ssh.connect('holonet.sdsc.edu', username=credentials.holonet_username, key_filename='../.ssh/id_rsa.openssh')
+	ssh.connect('holonet.sdsc.edu', username=credentials.holonet_username, key_filename=pwd_loc + '/.ssh/id_rsa.openssh')
 
 	script = "query.php \"" + qString + "\""
 
@@ -45,23 +47,31 @@ def queryHolonet(qString):
 def callPerl(file, args):
 	subprocess.call(['perl', file, 'x', json.dumps(args)])
 
-def createTicket(project_name, billing_index, first_name, last_name, email):
+def createTicket(project_name, billing_index, first_name, last_name, email, title, t_assignees):
 
-	ticketTitle = 'Cloud - ['  + project_name + ']'
+	if title == None:
+		ticketTitle = 'Cloud - ['  + project_name + ']'
+	else:
+		ticketTitle = title.format(project_name)
+
+	if t_assignees == None:
+		assignees = ['c1mckay', 'ranakashima', 'kcoakley', 'cwalsworth']
+	else:
+		assignees = t_assignees
 
 	args = {}
 	args['projectID'] = 3
 	args['title'] = ticketTitle
-	args['assignees'] = ['c1mckay', 'ranakashima', 'kcoakley', 'cwalsworth']
+	args['assignees'] = assignees
 	args['description'] = 'Initial creation of Master Ticket'# This is where I would add billing comments
 	args['status'] = 'Open'
 	args['priorityNumber'] = MEDIUM # 3 for medium, 2 for high
 
-
+	projfields = {}
 	projfields['Index__b1'] = billing_index
 	projfields['Percent__b1'] = 100
 	projfields['Billable'] = NOT_BILLABLE
-	projfields['Approved__bby__bManager'] = APPROVED_BY_MANAGER
+	projfields['Approved__bby__bManager'] = NOT_APPROVED_BY_MANAGER
 	projfields['Start__bDate'] = '2016-11-10'
 
 	abfields = {}
@@ -74,7 +84,7 @@ def createTicket(project_name, billing_index, first_name, last_name, email):
 
 	callPerl(CREATOR_FILE, args)
 
-	qString = "SELECT MRID FROM FOOTPRINTS.MASTER3 where MRTITLE = '" + ticketTitle + "' and BILLABLE = 'No' and APPROVED__BBY__BMANAGER = 'on' and MRSTATUS != 'DELETED_'"
+	qString = "SELECT MRID FROM FOOTPRINTS.MASTER3 where MRTITLE = '" + ticketTitle + "' and BILLABLE = 'No' and APPROVED__BBY__BMANAGER = 'off' and MRSTATUS != 'DELETED_'"
 	ticketNumbers = queryHolonet(qString)
 	ticketNumbers = [int(t['MRID']) for t in ticketNumbers]
 	return max(ticketNumbers)
@@ -90,7 +100,9 @@ def editTicket(ticketNumber, line_items):
 		"[Cloud Compute] Usage Charges": 2,
 		"[Cloud Compute] Image Charges": 3,
 		"[Cloud Compute] Volume Charges": 4,
-		"[Cloud Compute] Volume Snapshot Charges": 5
+		"[Cloud Compute] Volume Snapshot Charges": 5,
+		"commvault-frontEnd": 1,
+		"commvault-backEnd" : 2
 	}
 
 	titleToSeller = {
