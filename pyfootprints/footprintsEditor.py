@@ -17,6 +17,8 @@ pwd_loc = '/home/c1mckay'
 CREATOR_FILE = pwd_loc + '/pyfootprints/create.pl'
 EDITOR_FILE = pwd_loc + '/pyfootprints/edit.pl'
 
+START_DATE = 0
+END_DATE = 1
 ACCOUNT_NAME = 2
 FIRST_NAME = 3
 LAST_NAME = 4
@@ -118,7 +120,9 @@ def editTicket(ticketNumber, line_items):
 		"[Cloud Compute] Usage Charges": "Cloud Compute Usage Charges: {0} Units",
 		"[Cloud Compute] Image Charges": "Cloud Compute Image Charges: {0} Units",
 		"[Cloud Compute] Volume Charges": "Cloud Compute Volume Charges: {0} Units",
-		"[Cloud Compute] Volume Snapshot Charges": "Cloud Compute Volume Snapshot Charges: {0} Units"
+		"[Cloud Compute] Volume Snapshot Charges": "Cloud Compute Volume Snapshot Charges: {0} Units",
+		"commvault-frontEnd" : "",
+		"commvault-backEnd" : ""
 	}
 
 	projfields = {}
@@ -147,19 +151,28 @@ def editTicket(ticketNumber, line_items):
 
 	#print converter.keys()
 	
-	for title in converter:
-		n        = converter[title]
-		seller   = titleToSeller[title][0]
-		category = titleToSeller[title][1]
-		rate     = titleToSeller[title][2]
-		
-		projfields['Item__b{0}__bSeller'.format(n)] = seller
-		projfields['Item__b{0}__bCategory'.format(n)] = category
+	if 'commvault-frontEnd' not in converter and 'commvault-backEnd' not in converter:
+		for title in converter:
+			n        = converter[title]
+			if title not in titleToSeller:
+				#means that this is the commvault exception
+				continue
 
-		projfields['Item__b{0}__bRate'.format(n)] = rate
-		projfields['Item__b{0}__bQuantity'.format(n)] = 0
+			seller   = titleToSeller[title][0]
+			category = titleToSeller[title][1]
+			rate     = titleToSeller[title][2]
+			
+			projfields['Item__b{0}__bSeller'.format(n)] = seller
+			projfields['Item__b{0}__bCategory'.format(n)] = category
 
-	projfields['Other__bProduct__bInfo'] = '\n'.join(product_text)
+			projfields['Item__b{0}__bRate'.format(n)] = rate
+			projfields['Item__b{0}__bQuantity'.format(n)] = 0
+
+		projFieldsText = '\n'.join(product_text)
+	else:
+		projFieldsText = 'Commvault usage between {0} and {1}'.format(line_items[0][START_DATE], line_items[0][END_DATE])
+	
+	projfields['Other__bProduct__bInfo'] = projFieldsText
 
 	args['projfields'] = projfields
 
@@ -169,7 +182,7 @@ def editTicket(ticketNumber, line_items):
 	#categories
 	#['SRF__bCompute', 'SRF__bCloud']
 
-	#print args
+	#print args['projfields'].keys()
 
 	callPerl(EDITOR_FILE, args)
 
