@@ -13,6 +13,7 @@ def runTests():
 	r = requests.post("https://cloud-web-util.ucsd.edu/new-commvault-ticket", data='c1mckaytest', verify=False, headers={'Authorization': getCredentials()})
 	print 'delete ticket ' + r.text + ' on footprints'
 	query("delete from commvault_tickets where ticket_number = %s;", [ticketNumber], False)
+	# r.status_code
 
 
 
