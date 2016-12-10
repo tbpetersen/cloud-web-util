@@ -1,11 +1,7 @@
 //https://github.com/brianc/node-postgres
-
-
-
 var http = require("https");
 var fs = require('fs');
 var atob = require('atob');
-var keys  = require('./keys');
 var path = require('path');
 var fs = require('fs');
 var crypto = require('crypto');
