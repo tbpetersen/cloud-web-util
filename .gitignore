@@ -2,3 +2,4 @@ node_modules/
 credentials.*
 keys.json
 *.pyc
+pyfootprints/example.csv
