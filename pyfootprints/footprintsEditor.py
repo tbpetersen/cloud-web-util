@@ -151,7 +151,8 @@ def editTicket(ticketNumber, line_items):
 
 	#print converter.keys()
 	
-	if 'commvault-frontEnd' not in converter and 'commvault-backEnd' not in converter:
+	
+	if 'commvault-frontEnd' in converter and 'commvault-backEnd' in converter:
 		for title in converter:
 			n        = converter[title]
 			if title not in titleToSeller:
