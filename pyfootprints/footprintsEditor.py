@@ -163,11 +163,11 @@ def editTicket(ticketNumber, line_items):
 			category = titleToSeller[title][1]
 			rate     = titleToSeller[title][2]
 			
-			projfields['Item__b{0}__bSeller'.format(n)] = seller
-			projfields['Item__b{0}__bCategory'.format(n)] = category
+			projfields['Item__b{0}__bSeller'.format(n)] = None# seller
+			projfields['Item__b{0}__bCategory'.format(n)] = None# category
 
-			projfields['Item__b{0}__bRate'.format(n)] = rate
-			projfields['Item__b{0}__bQuantity'.format(n)] = 0
+			projfields['Item__b{0}__bRate'.format(n)] = None# rate
+			projfields['Item__b{0}__bQuantity'.format(n)] = None# 0
 
 		projFieldsText = '\n'.join(product_text)
 	else:
