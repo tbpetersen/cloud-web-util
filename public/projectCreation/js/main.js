@@ -131,7 +131,6 @@ function createJSON(){
   data.expirationTime = document.getElementById("trialLength").value; //ALSO TO CHANGE. DEFAULT VALUES
 
   /* Return JSON string */
-  console.log(data);
   return JSON.stringify(data);
 }
 
