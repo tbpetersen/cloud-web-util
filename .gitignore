@@ -3,3 +3,15 @@ credentials.*
 keys.json
 *.pyc
 pyfootprints/example.csv
+test.js
+*bootstrap*
+*notify.js
+*notify.css
+*moment.js
+*jquery*
+pyfootprints/upload.cmd
+public/js/vendor/npm.js
+*prettify.js
+*prettify.css
+*modernizr*
+public/projectCreation/js/npm.js
