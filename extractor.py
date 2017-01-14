@@ -1,3 +1,4 @@
+import re
 import time
 import sys
 import string
@@ -20,18 +21,18 @@ ticketsGeneratedThisMonth = False
 PRINT_ERRORS = True
 
 dateConverter = {}
-dateConverter['Jan'] = 1
-dateConverter['Feb'] = 2
-dateConverter['Mar'] = 3
-dateConverter['Apr'] = 4
-dateConverter['May'] = 5
-dateConverter['Jun'] = 6
-dateConverter['Jul'] = 7
-dateConverter['Aug'] = 8
-dateConverter['Sep'] = 9
-dateConverter['Oct'] = 10
-dateConverter['Nov'] = 11
-dateConverter['Dec'] = 12
+dateConverter['jan'] = 1
+dateConverter['feb'] = 2
+dateConverter['mar'] = 3
+dateConverter['apr'] = 4
+dateConverter['may'] = 5
+dateConverter['jun'] = 6
+dateConverter['jul'] = 7
+dateConverter['aug'] = 8
+dateConverter['sep'] = 9
+dateConverter['oct'] = 10
+dateConverter['nov'] = 11
+dateConverter['dec'] = 12
 
 # good example ticket: 72184
 
@@ -199,7 +200,7 @@ def queryHolonet(qString):
 	return "".join(stdout.readlines())
 
 def getOutstandingTickets():
-	qString = "SELECT MRID, MRTITLE, ITEM__B1__BSELLER, ITEM__B1__BCATEGORY FROM FOOTPRINTS.MASTER3 where BILLABLE = 'Yes' and BILLED__BSTATUS = 'Rejected' and APPROVED__BBY__BMANAGER = 'on' and MRSTATUS != '_DELETED_'"
+	qString = "SELECT MRID, MRTITLE, ITEM__B1__BSELLER, ITEM__B1__BCATEGORY, START__BDATE FROM FOOTPRINTS.MASTER3 where BILLABLE = 'Yes' and BILLED__BSTATUS = 'Rejected' and APPROVED__BBY__BMANAGER = 'on' and MRSTATUS != '_DELETED_'"
 	data = queryHolonet(qString)
 	data = json.loads(data)
 
@@ -244,9 +245,17 @@ def getOutstandingTickets():
 
 		descrip = descrip.replace(")", "")
 		parts =   descrip.split("&#58;")
-		projectName =  parts[0]
-		month = parts[1]
-		month = dateConverter[month]
+		if "&#58;" in descrip:
+			parts =   descrip.split("&#58;")
+			projectName =  parts[0]
+			month = parts[1]
+			month = dateConverter[month.lower()]
+			oldTicket = False
+		else:
+			projecName = descrip.replace(" Cloud - [", "").replace("]", "")
+			month = dateConverter["".join(re.findall("[a-zA-Z]+", x['START__BDATE'])).lower()]
+			oldTicket = True
+
 		
 		if projectName.lower() in badProjects:
 			project = badProjects[projectName.lower()]
