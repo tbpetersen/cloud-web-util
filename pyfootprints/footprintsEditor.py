@@ -75,6 +75,7 @@ def createTicket(project_name, billing_index, first_name, last_name, email, titl
 	projfields['Billable'] = NOT_BILLABLE
 	projfields['Approved__bby__bManager'] = NOT_APPROVED_BY_MANAGER
 	projfields['Start__bDate'] = '2016-11-10'
+	projfields['One__bTime__bCharge'] = 'off'
 
 	abfields = {}
 	abfields['First__bName']    = first_name
