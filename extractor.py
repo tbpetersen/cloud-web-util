@@ -10,7 +10,7 @@ import os, errno
 import requests
 import paramiko
 
-import db_communicator
+import db_communicator, pyfootprints.footprintsEditor as tEditor
 import credentials
 from email_util import sendMail
 from keystoneclient.v3 import client
@@ -503,6 +503,20 @@ def unpackProjectData(data):
 
 	if index == TRIAL_INDEX:
 		saveTrialProject(project_name, warningTime, expirationTime)
+	else:
+		if ' ' in contact_name:
+			indexOfSpace = contact_name.index(' ')
+			first_name = contact_name[:indexOfSpace]
+			last_name = contact_name[indexOfSpace + 1:]
+		else:
+			first_name = contact_name
+			last_name = contact_name
+		title = None #auto set in create ticket
+		assignees = None #auto set in create ticket
+		ticketNumber = tEditor.createTicket(project_name, index, first_name, last_name, contact_email, title, assignees)
+		pBuilder = keyStoneUtility.KeyStoneUtility(username = credentials.open_stack_username, password=credentials.open_stack_pw, auth_url = credentials.open_stack_url, 
+		auth_url_dep = credentials.open_stack_url_dep, tenant_name=credentials.open_stack_username)
+		pBuilder.setBillingInfo(project_name, str(ticketNumber))
 
 	usersAndPasswords = [{'username': u, 'password': '' if pBuilder.userExists(u) else getAndSendPassword(u)} for u in users]
 
