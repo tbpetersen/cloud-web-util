@@ -514,6 +514,7 @@ def unpackProjectData(data):
 		title = None #auto set in create ticket
 		assignees = None #auto set in create ticket
 		ticketNumber = tEditor.createTicket(project_name, index, first_name, last_name, contact_email, title, assignees)
+		#probably uneeded refresh now
 		pBuilder = keyStoneUtility.KeyStoneUtility(username = credentials.open_stack_username, password=credentials.open_stack_pw, auth_url = credentials.open_stack_url, 
 		auth_url_dep = credentials.open_stack_url_dep, tenant_name=credentials.open_stack_username)
 		pBuilder.setBillingInfo(project_name, str(ticketNumber))
