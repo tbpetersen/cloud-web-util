@@ -40,11 +40,24 @@ var server = http.createServer(options, function(request, response){
 			});
 		
 			return;
+		}else if(request.url === '/requestTrials'){
+			if(badToken(request)){
+				sendUnauthorized(response);
+				return;
+			}
+			sendTrialAccountData(response);
+
+			return
 		}else{
 			serveFile(request, response);
 			return;
 		}
 	}else if(request.method === 'POST'){
+
+		if(request.url === '/trelloCompliment'){
+			getTrelloData(request, response);
+			return;
+		}
 
 		Promise.all([Promise.resolve(badToken(request, response)), authenticate(request.headers.authorization)])
 			.then((results) => {
@@ -58,6 +71,8 @@ var server = http.createServer(options, function(request, response){
 						});
 					}else if(request.url === '/new-commvault-ticket'){
 						newCommvaultTicket(request, response);
+					}else if(request.url === '/convertTrialProject'){
+						convertTrialProject(request, response);
 					}else{			
 						sendEmail(request.url.substring(1), response);	
 					}
@@ -83,10 +98,7 @@ pf.getPort(function(err, pt){
 		console.log(err);
 		return;
 	}
-/*	if(pt === port)
-		server.listen(port);
-	else
-		console.log('already active'); */
+
 });
 
 
@@ -165,6 +177,24 @@ function newCommvaultTicket(request, response){
 	extractHTTPData(request)
 	.then((data) => {
 		runPythonScript(response, 'createCommvaultTicket.py', [data]);
+	});
+}
+
+function sendTrialAccountData(response){
+	runPythonScript(response, 'trialAccountData.py', []);
+}
+
+function getTrelloData(request, response){
+	extractHTTPData(request)
+	.then((data) => {
+		runPythonScript(response, 'pyfootprints/assignedTickets.py', [data])
+	});
+}
+
+function convertTrialProject(request, response){
+	extractHTTPData(request)
+	.then((data) => {
+		runPythonScript(response, 'trialToPaidCloudProject.py', [data]);
 	});
 }
 
