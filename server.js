@@ -8,7 +8,7 @@ var crypto = require('crypto');
 var spawn = require("child_process").spawn;
 
 var port = 443;
-const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu', 'dferbert@sdsc.edu'];
+const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu', 'dferbert@sdsc.edu', 'tbpetersen@sdsc.edu'];
 const python_cmd = 'python';
 
 var options = {
@@ -118,7 +118,7 @@ function extractHTTPData(request){
 }
 
 function serveFile(request, response){
-	var filePath = 'public/';
+	var filePath = '/var/www/public/';
 	if(request.url === '/'){
 		filePath += 'index.html';
 	}else{
