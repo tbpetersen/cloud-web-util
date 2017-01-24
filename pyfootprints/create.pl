@@ -30,7 +30,10 @@ $soap->uri('https://footprints.sdsc.edu/MRWebServices');
 $soap->proxy( 'https://footprints.sdsc.edu/MRcgi/MRWebServices.pl' );
 
 my $projfields = decode_json $ARGV[1];
-
+#$soap->{_transport}->{_proxy}->{ssl_opts}->{verify_hostname} = 0;
+BEGIN {
+    $ENV{HTTPS_CA_DIR} = '/etc/ssl/certs'
+}
 #my $soapenv = $soap->MRWebServices__editIssue(
 my $soapenv = $soap->MRWebServices__createIssue(
     $credentials->{footprints_username},
