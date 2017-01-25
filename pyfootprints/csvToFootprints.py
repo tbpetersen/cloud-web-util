@@ -5,8 +5,8 @@ from keystoneclient.v3 import client
 
 from footprintsEditor import createTicket, editTicket
 
-#file_name = '../commvault.csv'
-file_name = 'example.csv'
+file_name = '../commvault.csv'
+#file_name = 'example.csv'
 
 
 def queryHolonet(qString):
@@ -80,7 +80,7 @@ def main():
 
 		print project_name #+ str([item[11] for item in items])
 		ticket_number = ticket_data[project_name]
-		editTicket(ticket_number, items)
+		editTicket(items[0][6], items)
 		#editTicket(76488, items)
 
 
