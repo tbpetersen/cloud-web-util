@@ -249,6 +249,9 @@ function runPythonScript(response, fileName, args){
 			}else if(erString.indexOf('ProjectNameTaken') > -1){
 				response.statusCode = 405;
 				response.end("ProjectNameTaken");
+			}else if(erString.indexOf('InvalidCharacters') > -1){
+				response.statusCode = 405;
+				response.end("InvalidProjectName");
 			}else{
 				console.log(erString);
 				response.statusCode = 500;
