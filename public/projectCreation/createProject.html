@@ -6,6 +6,7 @@
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
+  <script src="js/functions.js"></script>
   <script src="js/main.js"></script>
   </head>
 
@@ -19,8 +20,9 @@
           <div class="form-group row">
           <label for="example-text-input" class="col-xs-2 col-form-label">Project Name</label>
           <div class="col-xs-10">
-            <input onfocus="removeError('projectNameError')" class="form-control" type="text" id="projectName" name="projectName">
+            <input onfocus="removeError('projectNameError'); removeError('projectNameCharactersError');" class="form-control" type="text" id="projectName" name="projectName">
             <div id="projectNameError" class="alert alert-danger hidden hidden">This field requires a value</div>
+            <div id="projectNameCharactersError" class="alert alert-danger hidden hidden">The project name may only include spaces, alphanumeric characters, _ , -</div>
           </div>
         </div>
 
@@ -89,9 +91,6 @@
          <div id="usernameError" class="alert alert-danger hidden">Please enter a valid email</div>
          <div id="duplicateUserError" class="alert alert-danger hidden">Usernames must be unique</div>
        </ul> 
-
-
-       <!--<input type="password" id="pass">Pass <button type="button" onclick="getLoginToken()">Click me</button> <br> i-->
 
          <!-- End form -->
         <br><button class="btn btn-success" type="submit">Create</button>

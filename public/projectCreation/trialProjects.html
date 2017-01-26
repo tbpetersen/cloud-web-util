@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/myCss.css" rel="stylesheet">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/functions.js"></script>
+  <script src="js/trialProjects.js"></script>
+  </head>
+
+  <body>
+
+
+    <!-- Begin panel for form -->
+    <div id="content-div" class="panel panel-default myPanel">
+      <div class="panel-body"> <center> <b> Upgrade Project </b> </center> <br/> </div>
+      <center><div class="loader" id="loading"></div></center>
+      <center><p id="text-info"></p></center>
+      <!--End panel -->
+    </div>
+  </body>
+  <!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Upgrade</h4>
+      </div>
+      <div class="modal-body">
+        <p>Index for <strong><span id="selectedTrialName"></strong> </span></p> <input type="text" id="newIndex">
+      </div>
+
+    <div class="alert alert-danger alert-trial" id="noIndexError">
+      <strong>Error:</strong> Please enter an index.
+    </div>
+
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" onclick="sendPost()">Upgrade</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+    <div class="alert alert-danger alert-trial" id="serverError">
+      <span id="serverErrorMessage"> <span>
+    </div>
+
+    <div class="alert alert-success alert-trial" id="serverSuccess">
+      <strong>Success!</strong> Indicates a successful or positive action.
+    </div>
+
+</html>

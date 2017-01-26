@@ -1,4 +1,3 @@
-var loginURL = "https://cloud-web-util.ucsd.edu/projectCreation/login.html?redirectURL=https://cloud-web-util.ucsd.edu/projectCreation/createProject.html";
 /* Authentication token */
 var token;
 /* Counter for number of users (this is the number of the next user, so there are num -1 users) */
@@ -6,29 +5,12 @@ var num = 2;
 
 /* Runs on page load */
 $(document).ready(function(){
-  if (typeof(Storage) !== "undefined"){ 
-    token = window.localStorage.getItem("loginToken");
-    if( !token ){
-      window.location.href = loginURL;
-    }
-  }else{
-    var cookies = document.cookie;
-    cookies = cookies.split(";");
-    var part;
-    hasToken = false;
-    for(var i = 0; i < cookies.length; i++){
-      part = cookies[i];
-      if(part.includes("loginToken")){
-        token = part.substring(part.indexOf("=") + 1);
-        hasToken = true;
-      }    
-    }
-    if(!hasToken){
-      window.location.href = loginURL;   
-    }
-  }
-  testToken();
+  checkForToken();
+  GET("/requestTrials", tokenTestCallback);
 });
+
+
+/******  Functions  ******/
 
 /*  Name:         addInput
 *   Purpose:      add another text input to the form for another username
@@ -69,7 +51,6 @@ function removeUser(user){
 function realSubmit(){
   /* Only post if the form had the correct data in it */
   if(checkForm()){
-
     removeError("failedCreate");
     removeError("successfulCreate");
     var url = "https://cloud-web-util.ucsd.edu/account";
@@ -161,7 +142,14 @@ function checkForm(){
   }
 
   /* Check if any of the fields are blank */
-  if(projectName.value == ""){
+
+  /* Check that the project name contains valid characters */
+  if( !isValidProjectName(projectName.value)){
+    showError("projectNameCharactersError");
+    submissionIsValid = false;
+  }
+
+  if( projectName.value == ""){
     showError("projectNameError");
     submissionIsValid = false;
   }
@@ -198,6 +186,8 @@ function checkForm(){
       submissionIsValid = false;
     }
   }
+
+
 
   /* Check if fields that are supposed to contain email addresses
      conatin the "@" symbol */
@@ -291,26 +281,18 @@ function showIndex(){
   document.getElementById("warningLengthLabel").classList.add("hidden");
 }
 
-/*  Name:         testToken
-*   Purpose:      Test whether the stored token is valid
-*   Description:  Sends a get request to requestData with the specified token.
-*                 If 401 is return from the reqeust, user if prompted to login again
-*   Params:       none
+/*  Name:         isValidProjectName
+*   Purpose:      Check the validity of the Project Name field
+*   Description:  Checks whether the field contains only 0-9, a-z, A-Z, "-",
+                   "_" and " "
+*   Params:       name - the string to test
 *   Return Value: none
 */
-function testToken(){
-  var url = "https://cloud-web-util.ucsd.edu/requestData";
-  var method = "GET";
-  var async = true;
-  var request = new XMLHttpRequest();
-  request.onload = function () {
-      var status = request.status;
-      if(status == 401){
-        window.location.href = loginURL;
-      }
+function isValidProjectName(name){
+  try{
+  return (name.match(/[^ 0-9a-zA-Z_-]/g) == null)
+  } catch(e){
+    alert("There was an error checking the characters in Project Name");
+    return false;
   }
-  request.open(method, url, async);
-  request.setRequestHeader("Authorization", token);
-  request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-  request.send();
 }

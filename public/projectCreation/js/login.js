@@ -10,6 +10,12 @@ $(document).ready(function(){
   /* Update redirectURL to represent the page that the user should be
      directed to (if another page was specified at all) */
   getRedirect();  
+  if(checkForToken(false)){
+    GET("/requestTrials", loginTestCallback);
+  }else{
+    document.getElementById("content-div").style.display = "block";
+    document.getElementById("loading").style.display = "none";
+  }
 });
 
 /*  Name:         realSubmit
@@ -97,6 +103,7 @@ function getLoginToken(){
 */
 function removeError(errorId){
   document.getElementById(errorId).classList.add("hidden");
+  document.getElementById(errorId).style.display = "none";
 }
 
 /*  Name:         showError
@@ -107,6 +114,7 @@ function removeError(errorId){
 */
 function showError(errorId){
   document.getElementById(errorId).classList.remove("hidden");
+  document.getElementById(errorId).style.display = "block";
 }
 
 /*  Name:         storeToken
@@ -145,6 +153,15 @@ function getRedirect(){
       }
       url =  url.substring(0, index);
     } 
+    redirectURL = url;
   }
-  redirectURL = url;
+}
+
+function loginTestCallback(data){
+  if(data.status == 200){
+    window.location.href = "/projectCreation/createProject.html";
+  }else{
+    document.getElementById("content-div").style.display = "block";
+    document.getElementById("loading").style.display = "none";
+  }
 }
