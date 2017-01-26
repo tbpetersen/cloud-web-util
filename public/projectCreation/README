@@ -1,6 +1,6 @@
 Author: Trevor Petersen
 File: README
-Date: October 24, 2016
+Date: January 26, 2016
 
 README
 
@@ -8,14 +8,13 @@ README
   exchanged for a token that can be sent with the authorization header of
   http requests. The login page exchanges the username and password provided
   for a token that is then stored in the browser's localStorage as "loginToken"
-  ( or a cookie names "loginToken" if localStorage is not available ). The 
-  login page redirects to
-  https://holonet.sdsc.edu:8134/projectCreation/createProject.html by default.
+  ( or a cookie names "loginToken" if localStorage is not available ). The
+  login page redirects to /projectCreation/createProject.html by default.
   To change which page it redirects to, pass the address as a url parameter
   named "redirectURL" .
 
-    Ex. 
-      https://holonet.sdsc.edu:8134/projectCreation/createProject.html?redirectURL=www.example.com
+    Ex.
+      /projectCreation/createProject.html?redirectURL=www.example.com
       This will cause the login page to redirect to www.example.com after authentication.
 
   To use the token, one would then access the local storage of the browser
