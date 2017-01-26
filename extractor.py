@@ -200,26 +200,30 @@ def queryHolonet(qString):
 	return "".join(stdout.readlines())
 
 def getOutstandingTickets():
-	qString = "SELECT MRID, MRTITLE, ITEM__B1__BSELLER, ITEM__B1__BCATEGORY, START__BDATE FROM FOOTPRINTS.MASTER3 where BILLABLE = 'Yes' and BILLED__BSTATUS = 'Rejected' and APPROVED__BBY__BMANAGER = 'on' and MRSTATUS != '_DELETED_'"
+	qString = "SELECT MRID, MRTITLE, ITEM__B1__BSELLER, ITEM__B1__BCATEGORY, START__BDATE FROM FOOTPRINTS.MASTER3"
+	qString += " where BILLABLE = 'Yes' and BILLED__BSTATUS = 'Rejected' and APPROVED__BBY__BMANAGER = 'on' and MRSTATUS != '_DELETED_'"
+	qString += " and ITEM__B1__BSELLER = 'SRF__bCloud'"
+	qString += " and (ITEM__B1__BCATEGORY = 'On__bDemand__bTriple__bCopy' OR ITEM__B1__BCATEGORY = 'Condo__bDual__bCopy' OR ITEM__B1__BCATEGORY = 'Cloud__bCompute')"
+
 	data = queryHolonet(qString)
-	data = json.loads(data)
+	tickets = json.loads(data)
 
 	currentMonth = datetime.date.today().month;
 
 	acceptableCategories = ['On__bDemand__bTriple__bCopy', 'Condo__bDual__bCopy', 'Cloud__bCompute']
 
-	tickets = [x for x in data if x['ITEM__B1__BSELLER'] == 'SRF__bCloud']
-	tickets = [x for x in data if x['ITEM__B1__BCATEGORY'] in acceptableCategories]
-
 	for ticket in tickets:
 		for key in ticket.keys():
 			ticket[key] = str(ticket[key])
-		ticket['ticket_id'] = int(ticket['MRID']) #ticket id
+		ticket['ticket_id'] = int(ticket['MRID'.lower()]) #ticket id
 
 	badProjects = {}
 
+
+	from datetime import datetime as d1
+
 	for x in tickets:
-		descrip = x['MRTITLE'] # DESCRIPTION
+		descrip = x['MRTITLE'.lower()] # DESCRIPTION
 
 		if "[Cloud Compute] Usage Charges (" in descrip:
 			title = "Cloud Compute Usage Charges"
@@ -253,7 +257,9 @@ def getOutstandingTickets():
 			oldTicket = False
 		else:
 			projecName = descrip.replace(" Cloud - [", "").replace("]", "")
-			month = dateConverter["".join(re.findall("[a-zA-Z]+", x['START__BDATE'])).lower()]
+			date = x['START__BDATE'.lower()]
+			date = d1.strptime(date, '%Y-%m-%d %H:%M:%S')
+			date = date.month
 			oldTicket = True
 
 		
