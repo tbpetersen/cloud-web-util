@@ -7,18 +7,12 @@ from keystoneclient.v3 import client
 from pyfootprints.footprintsEditor import createTicket, editTicket
 
 file_name = 'commvault.csv'
-#file_name = 'example.csv'
-
-
 
 def getLineItems():
-
 	with open(file_name, 'rb') as f:
 		reader = csv.reader(f)
 		line_items = list(reader)
-
 	return [line_item for line_item in line_items if line_item[0] != "start_date"]
-
 
 
 def createTicket(project):
@@ -50,8 +44,6 @@ def getTicketNumber(name):
 	return res[0][0]
 
 def main():
-
-	
 	projectToCharges = {}
 	for line_item in getLineItems():
 		p_name = line_item[2]

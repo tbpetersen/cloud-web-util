@@ -6,7 +6,6 @@ from keystoneclient.v3 import client
 from footprintsEditor import createTicket, editTicket
 
 file_name = '../commvault.csv'
-#file_name = 'example.csv'
 
 def getLineItems():
 	with open(file_name, 'rb') as f:
