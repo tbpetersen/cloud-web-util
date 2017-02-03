@@ -26,15 +26,15 @@ def runProc(cmd):
 
 def main():
 	try:
-		#commvaultToCsv.main()
-		#commvaultFPEditor.main()
+		commvaultToCsv.main()
+		commvaultFPEditor.main()
 		subject = 'Commvault usage to Footprints Success!'
 		msg = 'Commvault usage was successfully pushed to Footprints\n\nThanks to,\ncloud-web-util'
 	except:
 		subject = 'Error running commvault scripts'
 		msg = traceback.format_exc()
 
-	#sendMail(FROM, TO, subject, msg)
+	sendMail(FROM, ['c1mckay@sdsc.edu', 'ranakashima@sdsc.edu', 'kcoakley@sdsc.edu'], subject, msg)
 
 
 	args = []	
@@ -62,7 +62,7 @@ def main():
 	args.append('git add itemized/{0}/'.format(endTime.strftime("%Y%m")))
 	args.append('git add reports/{0}.csv'.format(today_f))
 	args.append(['git', 'commit', '-m', '"{0} Billing"'.format(today.strftime("%b %Y"))])
-	#args.append('git push origin master')
+	args.append('git push origin master')
 
 	for arg in args:
 		error = runProc(arg)
@@ -83,7 +83,7 @@ def main():
 		except:
 			subject = 'Error running Cloud to FP scripts'
 			msg = traceback.format_exc()
-		sendMail(FROM, TO, subject, msg)
+		sendMail(FROM, ['c1mckay@sdsc.edu', 'ranakashima@sdsc.edu', 'dferbert@sdsc.edu'], subject, msg)
 	
 
 
