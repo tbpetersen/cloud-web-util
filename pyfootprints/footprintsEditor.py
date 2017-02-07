@@ -74,7 +74,7 @@ def createTicket(project_name, billing_index, first_name, last_name, email, titl
 	projfields['Percent__b1'] = 100
 	projfields['Billable'] = NOT_BILLABLE
 	projfields['Approved__bby__bManager'] = NOT_APPROVED_BY_MANAGER
-	projfields['Start__bDate'] = '2016-11-10'
+	projfields['Start__bDate'] = datetime.date.today().strftime("%Y-%m-%d")
 	projfields['One__bTime__bCharge'] = 'off'
 
 	abfields = {}
@@ -89,7 +89,7 @@ def createTicket(project_name, billing_index, first_name, last_name, email, titl
 
 	qString = "SELECT MRID FROM FOOTPRINTS.MASTER3 where MRTITLE = '" + ticketTitle + "' and BILLABLE = 'No' and APPROVED__BBY__BMANAGER = 'off' and MRSTATUS != 'DELETED_'"
 	ticketNumbers = queryHolonet(qString)
-	ticketNumbers = [int(t['MRID']) for t in ticketNumbers]
+	ticketNumbers = [int(t['mrid']) for t in ticketNumbers]
 	return max(ticketNumbers)
 
 
