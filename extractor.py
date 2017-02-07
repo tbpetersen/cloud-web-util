@@ -16,8 +16,8 @@ from email_util import sendMail
 from keystoneclient.v3 import client
 from openstack_utility import keyStoneUtility
 
-
-ticketsGeneratedThisMonth = False
+now = datetime.date.today()
+ticketsGeneratedThisMonth = now.day >= 21
 PRINT_ERRORS = True
 
 dateConverter = {}
@@ -45,10 +45,10 @@ projectMonth = 'projectMonth'
 projectID = 'projectID'
 
 
-keyStone = client.Client(username = credentials.open_stack_username, 
-	password=credentials.open_stack_pw, 
-	auth_url = credentials.open_stack_url)
-projects = keyStone.projects.list()
+sdscStone = keyStoneUtility.KeyStoneUtility(username = credentials.open_stack_username, password=credentials.open_stack_pw, auth_url = credentials.open_stack_url, 
+	auth_url_dep = credentials.open_stack_url_dep, tenant_name=credentials.open_stack_username)
+
+projects = sdscStone.keyStone.projects.list()
 
 words = ['First', 'Second', 'Third', 'Last']
 TICKET_TYPES = ["Cloud Compute Usage Charges", "Cloud Storage Usage Charges", "Cloud Compute Image Charges", "Cloud Compute Volume Snapshot Charges", "Cloud Compute Volume Charges"]
@@ -112,6 +112,7 @@ class BadProject:
 			
 			# i can see 0s this month
 			# 0s indicate first warning
+			global ticketsGeneratedThisMonth
 			if ticketsGeneratedThisMonth: 
 				start = 0
 				end = 4
@@ -120,6 +121,7 @@ class BadProject:
 			else:
 				start = 1
 				end = 5
+
 
 			status = 0
 			for m in range(start, end):
@@ -130,12 +132,9 @@ class BadProject:
 			self.status[ticketType] = status
 
 	def associateKeystoneProject(self):
-		self.project = None
-		for p in projects:
-			if p.name == self.projectName:
-				self.project = p
-				break
-		if self.project == None and PRINT_ERRORS:
+		self.project = sdscStone.getProject(self.projectName)
+
+		if self.project == None:# and PRINT_ERRORS:
 			print '\tUnable to find a project for ' + self.projectName
 
 	def setEmails(self):
@@ -259,7 +258,7 @@ def getOutstandingTickets():
 			projecName = descrip.replace(" Cloud - [", "").replace("]", "")
 			date = x['START__BDATE'.lower()]
 			date = d1.strptime(date, '%Y-%m-%d %H:%M:%S')
-			date = date.month
+			month = date.month
 			oldTicket = True
 
 		
@@ -272,6 +271,7 @@ def getOutstandingTickets():
 		project.add(month, x['ticket_id'], title)
 		if title not in project.systems:
 			project.systems.append(title)
+
 
 	for project in badProjects.values():
 		project.associateKeystoneProject()
@@ -314,12 +314,12 @@ def getAndSendPassword(email):
 	return str(response['value'])
 
 def getEmails(project):
-	role_assignments = keyStone.role_assignments.list(project=project.id)
+	role_assignments = sdscStone.keyStone.role_assignments.list(project=project.id)
 	emails = []
 	for role_assignment in role_assignments:
 		try:
 			user_id = role_assignment.user["id"]
-			email = str(keyStone.users.get(user_id).name)
+			email = str(sdscStone.keyStone.users.get(user_id).name)
 			if email not in emails and '@' in email:
 				emails.append(email)
 		except AttributeError:
@@ -499,11 +499,10 @@ def unpackProjectData(data):
 		warningTime = None
 		expirationTime = None
 
-	pBuilder = keyStoneUtility.KeyStoneUtility(username = credentials.open_stack_username, password=credentials.open_stack_pw, auth_url = credentials.open_stack_url, 
-		auth_url_dep = credentials.open_stack_url_dep, tenant_name=credentials.open_stack_username)
 
 	try:
-		pBuilder.createProject(project_name = project_name, contact_name = contact_name, contact_email = contact_email, billing_field = index, attachNetwork = ATTACH_NETWORK)
+		global sdscStone
+		sdscStone.createProject(project_name = project_name, contact_name = contact_name, contact_email = contact_email, billing_field = index, attachNetwork = ATTACH_NETWORK)
 	except Name_Conflict:
 		raise ProjectNameTaken()
 
@@ -521,13 +520,13 @@ def unpackProjectData(data):
 		assignees = None #auto set in create ticket
 		ticketNumber = tEditor.createTicket(project_name, index, first_name, last_name, contact_email, title, assignees)
 		#probably uneeded refresh now
-		pBuilder = keyStoneUtility.KeyStoneUtility(username = credentials.open_stack_username, password=credentials.open_stack_pw, auth_url = credentials.open_stack_url, 
+		sdscStone = keyStoneUtility.KeyStoneUtility(username = credentials.open_stack_username, password=credentials.open_stack_pw, auth_url = credentials.open_stack_url, 
 		auth_url_dep = credentials.open_stack_url_dep, tenant_name=credentials.open_stack_username)
-		pBuilder.setBillingInfo(project_name, str(ticketNumber))
+		sdscStone.setBillingInfo(project_name, str(ticketNumber))
 
-	usersAndPasswords = [{'username': u, 'password': '' if pBuilder.userExists(u) else getAndSendPassword(u)} for u in users]
+	usersAndPasswords = [{'username': u, 'password': '' if sdscStone.userExists(u) else getAndSendPassword(u)} for u in users]
 
-	pBuilder.attachUsers(project_name, usersAndPasswords)
+	sdscStone.attachUsers(project_name, usersAndPasswords)
 
 	sendMail("cloud-no-reply@sdsc.edu", ["c1mckay@sdsc.edu", "ranakashima@sdsc.edu"], 
 		"New Project Created ["+project_name+"]", project_name + " created for:\n" + "\n".join(users))
