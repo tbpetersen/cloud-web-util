@@ -16,3 +16,5 @@ public/js/vendor/npm.js
 *modernizr*
 public/projectCreation/js/npm.js
 upload.cmd
+cloud-billing/
+billing/
