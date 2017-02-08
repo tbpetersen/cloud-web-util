@@ -1,3 +1,8 @@
+/* To put the nav bar at the top */
+body{
+  margin-top: 0;
+  padding-top: 0;
+}
 .panel-table .panel-body{
   padding:0;
 }

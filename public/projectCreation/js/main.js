@@ -51,6 +51,7 @@ function removeUser(user){
 function realSubmit(){
   /* Only post if the form had the correct data in it */
   if(checkForm()){
+    showLoadingIcon("loadingModal");
     removeError("failedCreate");
     removeError("successfulCreate");
     var url = "https://cloud-web-util.ucsd.edu/account";
@@ -60,6 +61,7 @@ function realSubmit(){
     var accountData = createJSON();
     var request = new XMLHttpRequest();
     request.onload = function () {
+        hideLoadingIcon("loadingModal");
         var status = request.status; // HTTP response status, e.g., 200 for "200 OK"
         var data = request.responseText; // Returned data, the JSON packet
         if(status == 401){
@@ -290,7 +292,7 @@ function showIndex(){
 */
 function isValidProjectName(name){
   try{
-  return (name.match(/[^ 0-9a-zA-Z_-]/g) == null)
+  return (name.match(/[^ 0-9a-z]/g) == null) && ! name.includes(" ");
   } catch(e){
     alert("There was an error checking the characters in Project Name");
     return false;

@@ -114,3 +114,30 @@ function parseURL(value){
       return "";
     }
 }
+
+/*  Name:         showLoadingIcon
+*   Purpose:      Display a loading icon and prevent user from clicking
+*   Description:  Shows a modal that cannot by unfocussed
+*   Params:       name - the name of the modal
+*   Return Value: none
+*/
+function showLoadingIcon(name){
+  $('#' + name).modal({
+    backdrop: 'static',
+    keyboard: false
+  }); 
+}
+
+/*  Name:         hideLoadingIcon
+*   Purpose:      Hides the loading icon 
+*   Description:  Toggles the modal
+*   Params:       name - the name of the modal
+*   Return Value: none
+*/
+function hideLoadingIcon(name){
+  $('#' + name).modal({
+    backdrop: 'true',
+    keyboard: true
+  }); 
+  $("#" + name).modal("toggle");
+}

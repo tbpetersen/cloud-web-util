@@ -50,6 +50,8 @@ function tokenCallback(request){
       }
       document.getElementById("loading").style.display = "none";
       trialProjects = JSON.parse(request.responseText);
+      trialProjects.sort(alphabeticCompare);
+      console.log(trialProjects);
       populateList();
 }
 
@@ -140,6 +142,7 @@ if( newIndex == ""){
   $("#noIndexError").fadeOut(4500);
   return;
 }
+showLoadingIcon("loadingModal");
 var url = "https://cloud-web-util.ucsd.edu/convertTrialProject"
 	 var method = "POST";
 	 var a_sync = true;
@@ -159,8 +162,12 @@ var url = "https://cloud-web-util.ucsd.edu/convertTrialProject"
                         closeModal();
                         return;
 	 	 }
-	 	 	
+              
+                 if(status == 200){
+                   document.getElementById("newIndex").value = "";
+                 }	 	 	
                  closeModal();
+                 hideLoadingIcon("loadingModal");
                  $("#serverSuccess").css( "display", "block");
                  $("#serverSuccess").fadeOut(4500);
                  var upgraded = document.getElementById(selectedTrial + "Panel");
@@ -181,4 +188,28 @@ var url = "https://cloud-web-util.ucsd.edu/convertTrialProject"
 */
 function closeModal(){
   $("#myModal").modal("toggle");
+}
+
+/*  Name:         alphabeticCompare
+*   Purpose:      Used to sort strings
+*   Description:  Used in trialProjects.sort
+*   Params:       a - trial account object to sort (must have projectName member
+                      variable
+                  b - trial account object to sort (must have projectName member
+                      variable
+*   Return Value: -1 if a comes before b, 1 if b comes before a and 0 if equal
+*/
+function alphabeticCompare(a,b){
+  var name1 = a.projectName;
+  var name2 = b.projectName;
+  if(name1 == name2){
+    return 0;
+  }else{
+    var count = 0;
+    while(name1.charCodeAt(count) == name2.charCodeAt(count)){ 
+      count++;
+    }
+    return name1.charCodeAt(count) - name2.charCodeAt(count);
+  }
+ 
 }

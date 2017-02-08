@@ -11,6 +11,21 @@
   </head>
 
   <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Cloud Web Util</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="https://cloud-web-util.ucsd.edu/projectCreation/createProject.html#">Create Project</a></li>
+          <li><a href="https://cloud-web-util.ucsd.edu/projectCreation/trialProjects.html">Upgrade Trial</a></li>
+          <li><a href="https://cloud-web-util.ucsd.edu/index.html">Rejected Tickets</a></li>
+        </ul>
+      </div>
+    </nav>
+
+
+
     <!-- Begin panel for form -->
     <div class="panel panel-default myPanel">
       <div class="panel-body"><center><b> Create Project </b></center> <br/>
@@ -22,7 +37,7 @@
           <div class="col-xs-10">
             <input onfocus="removeError('projectNameError'); removeError('projectNameCharactersError');" class="form-control" type="text" id="projectName" name="projectName">
             <div id="projectNameError" class="alert alert-danger hidden hidden">This field requires a value</div>
-            <div id="projectNameCharactersError" class="alert alert-danger hidden hidden">The project name may only include spaces, alphanumeric characters, _ , -</div>
+            <div id="projectNameCharactersError" class="alert alert-danger hidden hidden">The project name may only include lowercase letters and digits</div>
           </div>
         </div>
 
@@ -101,5 +116,21 @@
       <!--End panel -->
       </div>
     </div>
+
+
+  <!-- Modal -->
+<div id="loadingModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-body">
+        <center><div class="loader" id="upgradeLoading"> </div></center>
+      </div> 
+    </div>
+
+  </div>
+</div>
+
   </body>
 </html>

@@ -11,7 +11,18 @@
   </head>
 
   <body>
-
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Cloud Web Util</a>
+        </div>
+        <ul class="nav navbar-nav">
+          <li><a href="https://cloud-web-util.ucsd.edu/projectCreation/createProject.html#">Create Project</a></li>
+          <li class="active"><a href="https://cloud-web-util.ucsd.edu/projectCreation/trialProjects.html">Upgrade Trial</a></li>
+          <li><a href="https://cloud-web-util.ucsd.edu/index.html">Rejected Tickets</a></li>
+        </ul>
+      </div>
+    </nav>
 
     <!-- Begin panel for form -->
     <div id="content-div" class="panel panel-default myPanel">
@@ -21,6 +32,7 @@
       <!--End panel -->
     </div>
   </body>
+
   <!-- Modal -->
 <div id="myModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
@@ -41,19 +53,34 @@
 
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" onclick="sendPost()">Upgrade</button>
+        <button type="button" class="btn btn-default" onclick="sendPost();">Upgrade</button>
       </div>
     </div>
 
   </div>
 </div>
 
+  <!-- Modal -->
+<div id="loadingModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-body">
+        <center><div class="loader" id="upgradeLoading"> </div></center>
+      </div> 
+    </div>
+
+  </div>
+</div>
+
+
     <div class="alert alert-danger alert-trial" id="serverError">
       <span id="serverErrorMessage"> <span>
     </div>
 
     <div class="alert alert-success alert-trial" id="serverSuccess">
-      <strong>Success!</strong> Indicates a successful or positive action.
+      <strong>Success!</strong> The project has been upgraded.
     </div>
 
 </html>
