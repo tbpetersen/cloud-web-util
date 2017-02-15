@@ -8,7 +8,8 @@ var crypto = require('crypto');
 var spawn = require("child_process").spawn;
 
 var port = 443;
-const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu', 'dferbert@sdsc.edu', 'tbpetersen@sdsc.edu'];
+//const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu', 'dferbert@sdsc.edu', 'tbpetersen@sdsc.edu'];
+const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu', 'dferbert@sdsc.edu'];
 const python_cmd = 'python';
 
 var options = {
@@ -30,10 +31,10 @@ var server = http.createServer(options, function(request, response){
 			var auth = request.headers.authorization;			
 			
 			authenticate(auth, response)
-			.then((passed) => {
-				if(passed){
+			.then((okay_username) => {
+				if(okay_username){
 					response.statusCode = 200;
-					response.end(getKey());
+					response.end(getKey(okay_username));
 				}else{
 					sendUnauthorized(response);
 				}
@@ -54,29 +55,37 @@ var server = http.createServer(options, function(request, response){
 		}
 	}else if(request.method === 'POST'){
 
-		if(request.url === '/trelloCompliment'){
-			getTrelloData(request, response);
-			return;
-		}
+		
 
 		Promise.all([Promise.resolve(badToken(request, response)), authenticate(request.headers.authorization)])
 			.then((results) => {
 				var hasGoodToken = !results[0];
 				var goodCredentials = results[1];
+				var username = goodCredentials;
 				if(goodCredentials || hasGoodToken){
 					if(request.url === '/account'){
 						extractHTTPData(request)
 						.then((data) => {
 							createAccount(response, data);
 						});
-					}else if(request.url === '/new-commvault-ticket'){
-						newCommvaultTicket(request, response);
-					}else if(request.url === '/convertTrialProject'){
-						convertTrialProject(request, response);
-					}else{			
-						sendEmail(request.url.substring(1), response);	
+					}else if(request.url === '/trelloCompliment'){
+						getTrelloData(request, response);
+						return;
+					}else{
+						var superUserCredential = username && ALLOWED_USERNAMES.indexOf(username.toLowerCase()) !== -1;
+						var superUserToken = currentUser && ALLOWED_USERNAMES.indexOf(currentUser.toLowerCase()) !== -1;
+						if(!superUserToken && !superUserCredential){
+							sendInvalid();
+							return;
+						}
+						if(request.url === '/new-commvault-ticket'){
+							newCommvaultTicket(request, response);
+						}else if(request.url === '/convertTrialProject'){
+							convertTrialProject(request, response);
+						}else{			
+							sendEmail(request.url.substring(1), response);	
+						}
 					}
-				
 				}else{
 					sendUnauthorized(response);
 				}
@@ -285,10 +294,6 @@ function authenticate(auth){
 			return;
 		}
 		var username = auth[0], password = auth[1];
-		if(ALLOWED_USERNAMES.indexOf(username.toLowerCase()) === -1){
-			sendInvalid();
-			return;
-		}
 
 		
 		var py = spawn(python_cmd, ['authenticator.py', username, password]);
@@ -304,7 +309,7 @@ function authenticate(auth){
 			if(sent)
 				return;
 			else
-				resolve(true);
+				resolve(username);
 		});
 		py.stdin.end();
 	});
@@ -312,12 +317,14 @@ function authenticate(auth){
 }
 
 var currentKey = null;
+var currentUser = null;
 
-function getKey(){
+function getKey(user){
 	var len = 128;
 	currentKey = crypto.randomBytes(Math.ceil(len/2))
         .toString('hex') // convert to hexadecimal format
         .slice(0,len); //slice ignores how long it actually is. no erros thrown
+    currentUser = user;
     return currentKey;
 }
 
