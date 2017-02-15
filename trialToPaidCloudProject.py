@@ -6,6 +6,7 @@ from openstack_utility import keyStoneUtility
 import json, credentials, datetime
 
 import pyfootprints.footprintsEditor as tEditor
+from email_util import sendMail
 
 pBuilder = keyStoneUtility.KeyStoneUtility(username = credentials.open_stack_username, password=credentials.open_stack_pw, auth_url = credentials.open_stack_url, 
 		auth_url_dep = credentials.open_stack_url_dep, tenant_name=credentials.open_stack_username)
@@ -41,6 +42,10 @@ def main():
 	pBuilder.setBillingInfo(project_name, str(ticketNumber))
 
 	query('delete from trial_projects where name = %s;', tuple([project_name]), False)
+
+	subj = "Cloud Project Upgraded [{0}]".format(project_name)
+	msg = "The Cloud Project " + project_name + " has been upgraded to a paid project \n\n\n Cloud-Web-Util"
+	sendMail("cloud-web-util@sdsc.edu", ["ranakashima@sdsc.edu", "c1mckay@sdsc.edu"], subj, msg)
 	print ticketNumber
 
 if __name__ == "__main__":
