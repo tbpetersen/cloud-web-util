@@ -73,7 +73,7 @@ def createTicket(project_name, billing_index, first_name, last_name, email, titl
 	projfields['Index__b1'] = billing_index
 	projfields['Percent__b1'] = 100
 	projfields['Billable'] = NOT_BILLABLE
-	projfields['Approved__bby__bManager'] = NOT_APPROVED_BY_MANAGER
+	projfields['Approved__bby__bManager'] = APPROVED_BY_MANAGER
 	projfields['Start__bDate'] = datetime.date.today().strftime("%Y-%m-%d")
 	projfields['One__bTime__bCharge'] = 'off'
 
