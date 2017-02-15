@@ -1,4 +1,4 @@
-import sys, json
+import sys, json, re
 
 from db_communicator import query
 
@@ -8,10 +8,16 @@ import json, credentials, datetime
 import pyfootprints.footprintsEditor as tEditor
 from email_util import sendMail
 
+
 pBuilder = keyStoneUtility.KeyStoneUtility(username = credentials.open_stack_username, password=credentials.open_stack_pw, auth_url = credentials.open_stack_url, 
 		auth_url_dep = credentials.open_stack_url_dep, tenant_name=credentials.open_stack_username)
 
+class InvalidCharacters(Exception):
+	def __init__(self,*args,**kwargs):
+		Exception.__init__(self,*args,**kwargs)
 
+def validateProjectName(pName):
+	return match is not None
 
 def main():
 	argCount = len(sys.argv)
@@ -21,7 +27,10 @@ def main():
 	data = json.loads(sys.argv[1])
 
 	project_name = data[0]
-	project_index = data[1]
+	project_index = data[1].upper()
+
+	if not validateProjectIndex(project_index):
+		raise InvalidCharacters()
 
 	project_o = pBuilder.getProject(project_name)
 	if project_o == None:
