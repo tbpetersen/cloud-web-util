@@ -87,7 +87,7 @@ def createTicket(project_name, billing_index, first_name, last_name, email, titl
 
 	callPerl(CREATOR_FILE, args)
 
-	qString = "SELECT MRID FROM FOOTPRINTS.MASTER3 where MRTITLE = '" + ticketTitle + "' and BILLABLE = 'No' and APPROVED__BBY__BMANAGER = 'off' and MRSTATUS != 'DELETED_'"
+	qString = "SELECT MRID FROM FOOTPRINTS.MASTER3 where MRTITLE = '" + ticketTitle + "' and BILLABLE = 'No' and APPROVED__BBY__BMANAGER = 'on' and MRSTATUS != 'DELETED_'"
 	ticketNumbers = queryHolonet(qString)
 	ticketNumbers = [int(t['mrid']) for t in ticketNumbers]
 	return max(ticketNumbers)
