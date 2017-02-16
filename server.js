@@ -8,8 +8,8 @@ var crypto = require('crypto');
 var spawn = require("child_process").spawn;
 
 var port = 443;
-//const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu', 'dferbert@sdsc.edu', 'tbpetersen@sdsc.edu'];
-const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu', 'dferbert@sdsc.edu'];
+const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu', 'dferbert@sdsc.edu', 'tbpetersen@sdsc.edu'];
+//const ALLOWED_USERNAMES = ['ranakashima@sdsc.edu', 'kcoakley@sdsc.edu', 'colby@sdsc.edu', 'c1mckay@sdsc.edu', 'dferbert@sdsc.edu'];
 const python_cmd = 'python';
 
 var options = {
@@ -75,7 +75,7 @@ var server = http.createServer(options, function(request, response){
 						var superUserCredential = username && ALLOWED_USERNAMES.indexOf(username.toLowerCase()) !== -1;
 						var superUserToken = currentUser && ALLOWED_USERNAMES.indexOf(currentUser.toLowerCase()) !== -1;
 						if(!superUserToken && !superUserCredential){
-							sendInvalid();
+							sendUnauthorized(response);
 							return;
 						}
 						if(request.url === '/new-commvault-ticket'){
@@ -92,6 +92,7 @@ var server = http.createServer(options, function(request, response){
 			}).catch((err) => {
 				response.statusCode = 500;
 				response.end(err.toString());
+				console.log(err.toString());
 			});
 		
 		return;
