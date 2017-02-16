@@ -16,7 +16,7 @@ class InvalidCharacters(Exception):
 	def __init__(self,*args,**kwargs):
 		Exception.__init__(self,*args,**kwargs)
 
-def validateProjectName(pName):
+def validateProjectIndex(pName):
 	match = re.match("^[A-Z0-9]+$", pName)
 	return match is not None
 
