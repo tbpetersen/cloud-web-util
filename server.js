@@ -71,6 +71,9 @@ var server = http.createServer(options, function(request, response){
 					}else if(request.url === '/trelloCompliment'){
 						getTrelloData(request, response);
 						return;
+					}else if(request.url === '/trelloLogin.py'){
+						runTrelloLogin(request, response);
+						return;
 					}else{
 						var superUserCredential = username && ALLOWED_USERNAMES.indexOf(username.toLowerCase()) !== -1;
 						var superUserToken = currentUser && ALLOWED_USERNAMES.indexOf(currentUser.toLowerCase()) !== -1;
@@ -192,6 +195,15 @@ function newCommvaultTicket(request, response){
 
 function sendTrialAccountData(response){
 	runPythonScript(response, 'trialAccountData.py', []);
+}
+
+function runTrelloLogin(request, response){
+	extractHTTPData(request)
+	.then((data) => {
+		if(data)
+			data = [data];
+		runPythonScript(response, 'pyfootprints/trelloLogin.py', data);
+	});
 }
 
 function getTrelloData(request, response){
