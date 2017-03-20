@@ -71,7 +71,7 @@ var server = http.createServer(options, function(request, response){
 					}else if(request.url === '/trelloCompliment'){
 						getTrelloData(request, response);
 						return;
-					}else if(request.url === '/trelloLogin.py'){
+					}else if(request.url === '/trelloLogin'){
 						runTrelloLogin(request, response);
 						return;
 					}else{
