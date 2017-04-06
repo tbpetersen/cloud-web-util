@@ -39,9 +39,14 @@ def callPerl(file, args):
 	subprocess.call(['perl', file, 'x', json.dumps(args)])
 
 def getTicketNumber(name):
-
 	res = db_communicator.query('select ticket_number from commvault_tickets where name = %s', [name], True)
-	return res[0][0]
+	
+	try:
+		return res[0][0]
+	except:
+		printTicketNumber = False
+		print 'created ticekt for ' + name
+		return createCommvaultTicket.main(name, printTicketNumber)
 
 def main():
 	projectToCharges = {}
