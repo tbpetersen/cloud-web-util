@@ -4,7 +4,7 @@ import credentials
 from keystoneclient.v3 import client
 
 from footprintsEditor import createTicket, editTicket
-
+	
 def getLineItems(file_name):
 	with open(file_name, 'rb') as f:
 		reader = csv.reader(f)
@@ -35,6 +35,7 @@ def createTicket(project):
 def callPerl(file, args):
 	subprocess.call(['perl', file, 'x', json.dumps(args)])
 
+
 def main(file_name):
 
 	ACCOUNT_NAME = 2
@@ -54,10 +55,11 @@ def main(file_name):
 			continue
 
 		#print project_name #+ str([item[11] for item in items])
-		ticket_number = ticket_data[project_name]
-		editTicket(items[0][6], items)
-		#editTicket(76488, items)
-
+		ticket_number = items[0][6]
+		if ticket_number.isdigit():
+			editTicket(items[0][6], items)
+		else:
+			print project_name + " didn't have a ticket number associated with it"
 
 	
 if __name__ == "__main__":
