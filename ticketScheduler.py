@@ -16,6 +16,7 @@ def runProc(cmd):
 	my_env['OS_PASSWORD'] = credentials.open_stack_pw
 	my_env['OS_AUTH_URL_V3'] = credentials.open_stack_url
 	my_env['OS_AUTH_URL'] = credentials.open_stack_url_dep
+	my_env['SWAUTH_ADMIN_PASS'] = credentials.sw_auth
 
 	if type(cmd) != type([]):
 		cmd = cmd.split(' ')
@@ -34,7 +35,8 @@ def main():
 		subject = 'Error running commvault scripts'
 		msg = traceback.format_exc()
 
-	sendMail(FROM, ['c1mckay@sdsc.edu', 'ranakashima@sdsc.edu', 'kcoakley@sdsc.edu'], subject, msg)
+	sendMail(FROM, ['c1mckay@sdsc.edu'], subject, msg)
+	#sendMail(FROM, ['c1mckay@sdsc.edu', 'ranakashima@sdsc.edu', 'dferbert@sdsc.edu'], subject, msg)
 
 
 	args = []	
@@ -57,23 +59,31 @@ def main():
 
 	cmd = 'cloud-billing -s {0} -e {1} -b reports/{2}.csv -i project_ignore_list.txt -p itemized/{3}/ --graphite --skip-glance --skip-cinder --skip-cinder-snapshots'
 	cmd = cmd.format(startTime.strftime("%Y%m%d"), endTime.strftime("%Y%m%d"), today_f, endTime.strftime("%Y%m"))
-
 	args.append(cmd)
+	
+	cmd = 'duracloud-billing -s {0} -e {1} -b reports/duracloud-{2}.csv -p itemized/duracloud-{3}'
+	cmd = cmd.format(startTime.strftime("%Y%m%d"), endTime.strftime("%Y%m%d"), today_f, endTime.strftime("%Y%m"))
+	args.append(cmd)
+	
 	args.append('git add itemized/{0}/'.format(endTime.strftime("%Y%m")))
 	args.append('git add reports/{0}.csv'.format(today_f))
-	args.append(['git', 'commit', '-m', '"{0} Billing"'.format(today.strftime("%b %Y"))])
+	args.append('git add reports/duracloud-{0}.csv'.format(today_f))
+	args.append(['git', 'commit', '-m', '{0} Billing'.format(today.strftime("%b %Y"))])
 	args.append('git push origin master')
 
 	for arg in args:
 		error = runProc(arg)
 		if error:
-			subject = 'Cloud Billing Failed'
-			msg = error
-			msg += '\n\n'
-			msg += arg
-			sendMail(FROM, TO, subject, msg)
 			print error
-			break
+			if 'To gitlab.sdsc.edu:billing/billing.git' not in error and 'Everything up-to-date' not in error:
+				subject = 'Cloud Billing Failed'
+				msg = error
+				msg += '\n\n'
+				msg += arg
+				sendMail(FROM, TO, subject, msg)
+				break
+			else:
+				error = None
 
 	if not error:
 		try:
@@ -83,7 +93,8 @@ def main():
 		except:
 			subject = 'Error running Cloud to FP scripts'
 			msg = traceback.format_exc()
-		sendMail(FROM, ['c1mckay@sdsc.edu', 'ranakashima@sdsc.edu', 'dferbert@sdsc.edu'], subject, msg)
+		#sendMail(FROM, ['c1mckay@sdsc.edu', 'ranakashima@sdsc.edu'], subject, msg)
+		sendMail(FROM, ['c1mckay@sdsc.edu'], subject, msg)
 	
 
 
