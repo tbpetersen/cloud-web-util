@@ -1,4 +1,5 @@
 import subprocess, datetime, json, paramiko, credentials
+from subprocess import Popen, PIPE
 
 NO = 0
 YES = 1
@@ -29,25 +30,30 @@ CATEGORY = 9
 RATE = 10
 QUANTITY = 11
 
-def queryHolonet(qString):
+def queryHolonet(qString, longWay = True, onErr = None):
 	ssh = paramiko.SSHClient()
 	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 	ssh.connect('holonet.sdsc.edu', username=credentials.holonet_username, key_filename=pwd_loc + '/.ssh/id_rsa.openssh')
-
-	script = "query.php \"" + qString + "\""
-
+	script = "query.php " + str(longWay).lower() + " \"" + qString + "\""
 	stdin, stdout, stderr = ssh.exec_command('php ' + script)
-	stderr = "".join(stderr.readlines())
-	if len(stderr) != 0:
-		print stderr
+	err = "".join(stderr.readlines())
+	if len(err) != 0:
 		ssh.close()
-
-		raise BillingQueryError()
+		if onErr:
+			raise onErr(err)
+		else:
+			print err
 	ssh.close()
-	return json.loads("".join(stdout.readlines()))
+	result = "".join(stdout.readlines())
+	result = json.loads(result)
+	return result
 
 def callPerl(file, args):
-	subprocess.call(['perl', file, 'x', json.dumps(args)])
+	p = Popen(['perl', file, 'x', json.dumps(args)], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+	output, err = p.communicate()
+	rc = p.returncode
+	print 'code was ' + str(rc)
+	#subprocess.call(['perl', file, 'x', json.dumps(args)])
 
 def createTicket(project_name, billing_index, first_name, last_name, email, title, t_assignees):
 
@@ -91,8 +97,8 @@ def createTicket(project_name, billing_index, first_name, last_name, email, titl
 	callPerl(CREATOR_FILE, args)
 
 	qString = "SELECT MRID FROM FOOTPRINTS.MASTER3 where MRTITLE = '" + ticketTitle + "' and BILLABLE = 'No' and APPROVED__BBY__BMANAGER = 'on' and MRSTATUS != 'DELETED_'"
-	ticketNumbers = queryHolonet(qString)
-	ticketNumbers = [int(t['mrid']) for t in ticketNumbers]
+	ticketNumbers = queryHolonet(qString, longWay = False)
+	ticketNumbers = [int(t['MRID']) for t in ticketNumbers]
 	return max(ticketNumbers)
 
 
