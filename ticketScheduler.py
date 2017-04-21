@@ -34,6 +34,7 @@ def main():
 	except:
 		subject = 'Error running commvault scripts'
 		msg = traceback.format_exc()
+		print err
 
 	sendMail(FROM, ['c1mckay@sdsc.edu'], subject, msg)
 	#sendMail(FROM, ['c1mckay@sdsc.edu', 'ranakashima@sdsc.edu', 'dferbert@sdsc.edu'], subject, msg)
