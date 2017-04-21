@@ -12,6 +12,7 @@ import paramiko
 
 import db_communicator, pyfootprints.footprintsEditor as tEditor
 import credentials
+import holonetComm
 from email_util import sendMail
 from keystoneclient.v3 import client
 from openstack_utility import keyStoneUtility
@@ -183,20 +184,7 @@ class BadProject:
 		return [(t-datetime.date(1970,1,1)).total_seconds() for t in emailData]
 
 def queryHolonet(qString):
-	ssh = paramiko.SSHClient()
-	ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-	ssh.connect('holonet.sdsc.edu', username='c1mckay', key_filename='.ssh/id_rsa.openssh')
-
-	script = "query.php \"" + qString + "\""
-
-	stdin, stdout, stderr = ssh.exec_command('php ' + script)
-	err = "".join(stderr.readlines())
-	if len(err) != 0:
-		print err
-		ssh.close()
-		raise BillingQueryError()
-	ssh.close()
-	return "".join(stdout.readlines())
+	return holonetComm.queryHolonet(qString, longWay = True, onErr = BillingQueryError)
 
 def getOutstandingTickets():
 	qString = "SELECT MRID, MRTITLE, ITEM__B1__BSELLER, ITEM__B1__BCATEGORY, START__BDATE FROM FOOTPRINTS.MASTER3"
