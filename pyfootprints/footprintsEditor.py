@@ -52,7 +52,7 @@ def callPerl(file, args):
 	p = Popen(['perl', file, 'x', json.dumps(args)], stdin=PIPE, stdout=PIPE, stderr=PIPE)
 	output, err = p.communicate()
 	rc = p.returncode
-	print 'code was ' + str(rc)
+	#print 'code was ' + str(rc)
 	#subprocess.call(['perl', file, 'x', json.dumps(args)])
 
 def createTicket(project_name, billing_index, first_name, last_name, email, title, t_assignees):
