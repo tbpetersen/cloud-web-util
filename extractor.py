@@ -13,6 +13,7 @@ import paramiko
 import db_communicator, pyfootprints.footprintsEditor as tEditor
 import credentials
 import holonetComm
+import trial_checker
 from email_util import sendMail
 from keystoneclient.v3 import client
 from openstack_utility import keyStoneUtility
@@ -467,8 +468,6 @@ def getData():
 	# sends the data out so the nodescript can pick it up and send it out
 	print json.dumps(requestedData, separators=(',',':'))
 
-def saveTrialProject(project_name, warning, expiration):
-	db_communicator.query('insert into trial_projects (name, created, notified, warning_length, delete_length) values (%s, CURRENT_TIMESTAMP, %s, %s, %s);', [project_name, False, warning, expiration], False)
 
 ATTACH_NETWORK = True
 
@@ -495,7 +494,7 @@ def unpackProjectData(data):
 		raise ProjectNameTaken()
 
 	if index == TRIAL_INDEX:
-		saveTrialProject(project_name, warningTime, expirationTime)
+		trial_checker.saveTrialProject(project_name, warningTime, expirationTime)
 	else:
 		if ' ' in contact_name:
 			indexOfSpace = contact_name.index(' ')

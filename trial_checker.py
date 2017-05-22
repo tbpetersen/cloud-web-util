@@ -96,6 +96,8 @@ def disableTrialProject(project_name):
 	project_instance = getProject(project_name)
 	keyStone.projects.update(project_instance.id, enabled=False)
 
+def saveTrialProject(project_name, warning, expiration):
+	query('insert into trial_projects (name, created, notified, warning_length, delete_length) values (%s, CURRENT_TIMESTAMP, %s, %s, %s);', [project_name, False, warning, expiration], False)
 
 if __name__ == "__main__":
 	results = db_communicator.query('select project_id, name, created, notified, warning_length, delete_length from trial_projects', (), True)
