@@ -51,7 +51,7 @@ def notifyUser(project_name, email, warningNumber, remainingTime):
 		subj = 'The trial project for "{0}" has expired'
 		msg = 'Dear {0} project user,\n\n This message is a notification that your trial project "{0}" has expired and the project was deleted.  Please contact SDSC Support with any concerns.\n\n'
 		msg += 'SDSC Cloud Support'
-	sub = subj.format(project_name)
+	subj = subj.format(project_name)
 	msg = msg.format(project_name, remainingTime)
 	sendMail('support@sdsc.edu', email, subj, msg)
 
@@ -74,6 +74,7 @@ def notifyProject(project, warning_number, remainingTime):
 
 	if emails == None or len(emails) == 0:
 		emails = [project_instance.contact_email]
+	
 	emails += WATCHERS
 	for email in emails:
 		notifyUser(project, email, warning_number, remainingTime)
