@@ -1,4 +1,4 @@
-import json, paramiko
+import json, paramiko, sys
 
 def getColumnNames():
 	qString = "SELECT COLUMN_NAME FROM ALL_TAB_COLUMNS WHERE TABLE_NAME = 'MASTER3'"
@@ -48,6 +48,20 @@ def gCol(table_name):
 	for r in results:
 		print r
 	return results
+
+def main():
+	jObject = json.loads(sys.argv[1])
+	qString = jObject['query']
+	if 'longWay' in jObject:
+		longWay = jObject['longWay']
+	else:
+		longWay = True
+	print queryHolonet(qString, longWay = longWay)
+
+
+if __name__ == "__main__" and len(sys.argv) > 1:
+	main()
+
 
 #qString = "SELECT DISTNCT TABLE_NAME FROM ALL_TAB_COLUMNS WHERE TABLE_NAME = 'MASTER3'"
 #queryHolonet(qString, longWay = False)

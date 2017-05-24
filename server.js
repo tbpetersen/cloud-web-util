@@ -54,9 +54,6 @@ var server = http.createServer(options, function(request, response){
 			return;
 		}
 	}else if(request.method === 'POST'){
-
-		
-
 		Promise.all([Promise.resolve(badToken(request, response)), authenticate(request.headers.authorization)])
 			.then((results) => {
 				var hasGoodToken = !results[0];
@@ -68,6 +65,9 @@ var server = http.createServer(options, function(request, response){
 						.then((data) => {
 							createAccount(response, data);
 						});
+					}else if(request.url === '/holonetQuery'){
+						queryHolonet(request, response);
+						return;
 					}else if(request.url === '/trelloCompliment'){
 						getTrelloData(request, response);
 						return;
@@ -210,6 +210,13 @@ function getTrelloData(request, response){
 	extractHTTPData(request)
 	.then((data) => {
 		runPythonScript(response, 'pyfootprints/assignedTickets.py', [data])
+	});
+}
+
+function queryHolonet(request, response){
+	extractHTTPData(request)
+	.then((data) => {
+		runPythonScript(response, 'holonetComm.py', [data]);
 	});
 }
 
