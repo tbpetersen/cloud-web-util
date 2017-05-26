@@ -1,0 +1,11 @@
+CREATE TABLE cloud_ids (
+	cloud_name VARCHAR(255) NOT NULL,
+	order_id VARCHAR(36) NOT NULL
+);
+
+CREATE TABLE commvault_tickets(
+	comm_id serial PRIMARY KEY,
+	name VARCHAR(50),
+	ticket_number INTEGER,
+	order_id VARCHAR(36) NOT NULL
+)
