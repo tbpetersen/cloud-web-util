@@ -1,3 +1,5 @@
+### This should now be on the SDSC gitlab server.
+
 Auto-Email System
 
 NodeJS serves as the top level HTTP handler.  All the requests are password protected and sent over https.  The server lives on port 8134.  All valid requests will return '200 OK'.
